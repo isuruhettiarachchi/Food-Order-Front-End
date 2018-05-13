@@ -1,0 +1,15 @@
+<select [(ngModel)]='selectedFood' (ngModelChange)="onFoodSelect($event)">
+  <option *ngFor="let food of foodItems" [value]="food.id">{{ food.name }}</option>
+</select>
+
+<button (click)="addFoodItem()">
+  Add to cart
+</button>
+
+<!-- <div *ngFor="let item of foodItems">
+  <p>{{ item.name }}</p>
+</div> -->
+
+<div *ngFor="let food of foodCart; let i = index">
+    <app-food-detail [foodName]="food.name" [foodPrice]="food.price" (getTotalAmount)="setTotalAmount(i, $event)"></app-food-detail>
+</div>

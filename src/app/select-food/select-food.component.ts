@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ApiService } from '../api.service';
 
 @Component({
   selector: 'app-select-food',
@@ -6,23 +7,17 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./select-food.component.css']
 })
 export class SelectFoodComponent implements OnInit {
-  foodItems: any;
+  foodItems: any = [];
   selectedFood: any;
   foodCart: Array<{id: number, name: string, price: number; totalAmount: number}> = [];
+  totalBillAmount: number;
 
-  constructor() {
-    this.foodItems = [
-      {
-        id: '1',
-        name: 'food1',
-        price: '120'
-      },
-      {
-        id: '2',
-        name: 'food2',
-        price: '130'
-      }
-    ];
+  constructor(
+    private apiService: ApiService
+  ) {
+    this.apiService.getFoodList().then(res => {
+      this.foodItems = res;
+    });
   }
 
   ngOnInit() {
@@ -38,28 +33,56 @@ export class SelectFoodComponent implements OnInit {
   }
 
   addFoodItem() {
-    // TODO: push food item to array
-    console.log('F1', this.selectedFood);
-    this.foodItems.forEach((item, i) => {
-      if (item.id === this.selectedFood) {
-        const foodCartItem = {
-          id: item.id,
-          name: item.name,
-          price: item.price,
-          totalAmount: 0
-        };
-        this.foodCart.push(foodCartItem);
-        return;
+    this.checkDuplicateCartItems().then((res) => {
+      if (res === true) {
+        // TODO: show duplcaite food cart item alert
+        console.log('duplciate item');
+      } else if (res === false) {
+        this.foodItems.forEach((elem, i) => {
+          if (elem.id === this.selectedFood) {
+            const foodCartItem = {
+              id: elem.id,
+              name: elem.name,
+              price: elem.price,
+              totalAmount: 0
+            };
+            this.foodCart.push(foodCartItem);
+            return;
+          }
+        });
+        console.log(this.foodCart);
       }
     });
-    console.log(this.foodCart);
+  }
 
+  removeFromFoodCart(index) {
+    if (index > -1) {
+      this.foodCart.splice(index, 1);
+    }
+  }
+
+  checkDuplicateCartItems(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.foodCart.forEach(elem => {
+        if (elem.id === this.selectedFood) {
+          resolve(true);
+        }
+      });
+      resolve(false);
+    });
   }
 
   setTotalAmount(index, amnt) {
     this.foodCart[index].totalAmount = amnt;
-    console.log(this.foodCart);
-    
+    // console.log(this.foodCart);
+    this.setTotalBillAmount();
+  }
+
+  setTotalBillAmount() {
+    this.totalBillAmount = 0;
+    this.foodCart.forEach((item) => {
+      this.totalBillAmount = this.totalBillAmount + item.totalAmount;
+    });
   }
 
 }

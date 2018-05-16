@@ -12,4 +12,7 @@
 
 <div *ngFor="let food of foodCart; let i = index">
     <app-food-detail [foodName]="food.name" [foodPrice]="food.price" (getTotalAmount)="setTotalAmount(i, $event)"></app-food-detail>
+    <button (click)="removeFromFoodCart(i)">remove</button>
 </div>
+
+<label>{{ totalBillAmount }}</label>
